@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Beyond the Veil — Open World Prototype</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blood:#8b1a1a; --ember:#c0392b; --gold:#b8860b; --gold-lt:#d4a017;
+      --fog:#c9b99a; --parchment:#e8dcc8; --ink:#0d0d0f; --charcoal:#1a1a1f;
+      --slate:#2a2a35; --steel:#3d3d50; --mist:#6b6b8a;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--ink); color: var(--fog);
+      font-family: 'Crimson Text', Georgia, serif;
+      font-size: 18px; line-height: 1.7; overflow-x: hidden; cursor: crosshair;
+    }
+    body::before {
+      content:''; position:fixed; inset:0; z-index:9999; pointer-events:none;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity:0.035;
+    }
+    ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:var(--ink)} ::-webkit-scrollbar-thumb{background:var(--blood);border-radius:3px}
+
+    /* HERO */
+    .hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; padding:2rem; text-align:center; }
+    .hero-bg {
+      position:absolute; inset:0;
+      background: radial-gradient(ellipse 55% 45% at 50% 30%, rgba(26,26,46,0.95) 0%,transparent 70%),
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(139,26,26,0.13) 0%,transparent 70%),
+        radial-gradient(ellipse 50% 80% at 20% 80%, rgba(184,134,11,0.07) 0%,transparent 60%),
+        linear-gradient(180deg,#04040a 0%,#0d0d0f 40%,#111116 100%);
+    }
+    .veil-shimmer {
+      position:absolute; inset:0;
+      background:radial-gradient(ellipse 40% 40% at 50% 50%,rgba(100,80,180,0.07) 0%,transparent 70%);
+      animation:veilPulse 6s ease-in-out infinite;
+    }
+    @keyframes veilPulse{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    .city-silhouette {
+      position:absolute; bottom:0; left:0; right:0; height:280px;
+      background:#090909;
+      mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 280'%3E%3Cpath fill='%23090909' d='M0,280 L0,200 L30,200 L30,160 L50,160 L50,120 L70,120 L70,80 L90,80 L90,160 L120,160 L120,100 L140,100 L140,60 L155,60 L155,40 L170,40 L170,60 L185,60 L185,100 L210,100 L210,140 L230,140 L230,100 L250,100 L250,130 L280,130 L280,90 L300,90 L300,50 L315,50 L315,30 L322,30 L322,10 L329,10 L329,30 L336,30 L336,50 L350,50 L350,90 L370,90 L370,120 L400,120 L400,80 L420,80 L420,110 L450,110 L450,70 L470,70 L470,40 L480,40 L480,20 L490,20 L490,40 L500,40 L500,70 L520,70 L520,100 L550,100 L550,130 L580,130 L580,100 L610,100 L610,60 L630,60 L630,40 L645,40 L645,20 L652,20 L652,5 L659,5 L659,20 L666,20 L666,40 L680,40 L680,60 L700,60 L700,90 L730,90 L730,60 L750,60 L750,100 L780,100 L780,140 L810,140 L810,110 L840,110 L840,80 L860,80 L860,50 L875,50 L875,30 L883,30 L883,10 L891,10 L891,30 L899,30 L899,50 L915,50 L915,90 L940,90 L940,120 L970,120 L970,90 L1000,90 L1000,60 L1020,60 L1020,100 L1050,100 L1050,130 L1080,130 L1080,100 L1100,100 L1100,70 L1120,70 L1120,50 L1130,50 L1130,30 L1138,30 L1138,15 L1146,15 L1146,30 L1154,30 L1154,50 L1165,50 L1165,80 L1190,80 L1190,110 L1220,110 L1220,80 L1250,80 L1250,120 L1280,120 L1280,160 L1310,160 L1310,130 L1340,130 L1340,170 L1380,170 L1380,200 L1440,200 L1440,280 Z'/%3E%3C/svg%3E");
+      -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 280'%3E%3Cpath fill='%23090909' d='M0,280 L0,200 L30,200 L30,160 L50,160 L50,120 L70,120 L70,80 L90,80 L90,160 L120,160 L120,100 L140,100 L140,60 L155,60 L155,40 L170,40 L170,60 L185,60 L185,100 L210,100 L210,140 L230,140 L230,100 L250,100 L250,130 L280,130 L280,90 L300,90 L300,50 L315,50 L315,30 L322,30 L322,10 L329,10 L329,30 L336,30 L336,50 L350,50 L350,90 L370,90 L370,120 L400,120 L400,80 L420,80 L420,110 L450,110 L450,70 L470,70 L470,40 L480,40 L480,20 L490,20 L490,40 L500,40 L500,70 L520,70 L520,100 L550,100 L550,130 L580,130 L580,100 L610,100 L610,60 L630,60 L630,40 L645,40 L645,20 L652,20 L652,5 L659,5 L659,20 L666,20 L666,40 L680,40 L680,60 L700,60 L700,90 L730,90 L730,60 L750,60 L750,100 L780,100 L780,140 L810,140 L810,110 L840,110 L840,80 L860,80 L860,50 L875,50 L875,30 L883,30 L883,10 L891,10 L891,30 L899,30 L899,50 L915,50 L915,90 L940,90 L940,120 L970,120 L970,90 L1000,90 L1000,60 L1020,60 L1020,100 L1050,100 L1050,130 L1080,130 L1080,100 L1100,100 L1100,70 L1120,70 L1120,50 L1130,50 L1130,30 L1138,30 L1138,15 L1146,15 L1146,30 L1154,30 L1154,50 L1165,50 L1165,80 L1190,80 L1190,110 L1220,110 L1220,80 L1250,80 L1250,120 L1280,120 L1280,160 L1310,160 L1310,130 L1340,130 L1340,170 L1380,170 L1380,200 L1440,200 L1440,280 Z'/%3E%3C/svg%3E");
+      mask-size:100% 100%; -webkit-mask-size:100% 100%;
+    }
+    .fog-strip{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,185,154,0.07),transparent);animation:fogDrift 8s ease-in-out infinite;}
+    .fog-strip:nth-child(1){bottom:100px;animation-delay:0s}
+    .fog-strip:nth-child(2){bottom:160px;animation-delay:2s;opacity:.6}
+    .fog-strip:nth-child(3){bottom:220px;animation-delay:4s;opacity:.4}
+    @keyframes fogDrift{0%,100%{transform:scaleX(1) translateX(0);opacity:.3}50%{transform:scaleX(1.1) translateX(2%);opacity:.7}}
+    .hero-content{position:relative;z-index:2;animation:heroReveal 1.4s cubic-bezier(0.16,1,0.3,1) both}
+    @keyframes heroReveal{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+    .badge{display:inline-block;font-family:'Share Tech Mono',monospace;font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold-lt);border:1px solid rgba(184,134,11,.3);padding:.35em 1.2em;margin-bottom:2rem;position:relative;animation:heroReveal 1.4s .1s both}
+    .badge::before,.badge::after{content:'◆';position:absolute;top:50%;transform:translateY(-50%);font-size:.5rem;color:var(--gold)}
+    .badge::before{left:-1em}.badge::after{right:-1em}
+    .hero-title{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(2.6rem,7.5vw,6.5rem);line-height:.95;letter-spacing:-.01em;color:var(--parchment);text-shadow:0 0 60px rgba(100,80,180,.3),0 0 120px rgba(139,26,26,.2);animation:heroReveal 1.4s .2s both}
+    .hero-title .word-the{font-size:.55em;letter-spacing:.3em;color:var(--mist);display:block;font-weight:400}
+    .hero-title .word-veil{color:var(--ember);text-shadow:0 0 30px rgba(192,57,43,.8),0 0 80px rgba(100,80,180,.4)}
+    .hero-subtitle{font-family:'Cinzel',serif;font-weight:400;font-size:clamp(.9rem,2vw,1.3rem);letter-spacing:.3em;color:var(--mist);margin-top:.8rem;text-transform:uppercase;animation:heroReveal 1.4s .35s both}
+    .divider{width:160px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:2rem auto;animation:heroReveal 1.4s .45s both}
+    .hero-desc{max-width:560px;margin:0 auto 2.5rem;color:var(--fog);font-size:1.05rem;font-style:italic;animation:heroReveal 1.4s .55s both}
+    .hero-tags{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;animation:heroReveal 1.4s .65s both}
+    .tag{font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;padding:.4em 1em;border:1px solid var(--steel);color:var(--mist);background:rgba(26,26,31,.6);transition:border-color .3s,color .3s}
+    .tag:hover{border-color:var(--gold);color:var(--gold-lt)}
+    .scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;color:var(--steel);text-transform:uppercase;animation:pulse 2.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:100;background:rgba(4,4,10,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(139,26,26,.2);padding:0 2rem;display:flex;align-items:center;justify-content:space-between}
+    .nav-logo{font-family:'Cinzel',serif;font-weight:700;font-size:.95rem;color:var(--fog);padding:1.1rem 0;letter-spacing:.08em}
+    .nav-logo span{color:var(--ember)}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mist);text-decoration:none;transition:color .25s}
+    .nav-links a:hover{color:var(--gold-lt)}
+    .dev-alert{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;background:rgba(139,26,26,.12);border:1px solid rgba(139,26,26,.4);color:var(--ember);padding:.35em .9em}
+
+    /* SECTIONS */
+    section{max-width:1100px;margin:0 auto;padding:6rem 2rem}
+    .section-label{font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.35em;text-transform:uppercase;color:var(--ember);margin-bottom:.6rem}
+    .section-title{font-family:'Cinzel',serif;font-weight:700;font-size:clamp(1.8rem,4vw,2.8rem);color:var(--parchment);margin-bottom:1rem;line-height:1.2}
+    .section-line{width:80px;height:2px;background:linear-gradient(90deg,var(--blood),transparent);margin-bottom:3rem}
+    .sep{max-width:1100px;margin:0 auto;border:none;border-top:1px solid var(--slate)}
+
+    /* WORLD / LORE */
+    .lore-intro{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;margin-bottom:4rem}
+    .lore-intro-text p{margin-bottom:1.2rem;color:var(--fog)}
+    .quote-block{border-left:3px solid var(--blood);padding:1.2rem 1.5rem;background:rgba(139,26,26,.06);font-style:italic;color:var(--parchment);font-size:1.05rem;margin:1.5rem 0}
+    .veil-box{background:linear-gradient(135deg,rgba(26,26,46,.8),rgba(13,13,15,.9));border:1px solid rgba(100,80,180,.22);border-left:3px solid rgba(100,80,180,.55);padding:2rem 2.2rem}
+    .veil-box-title{font-family:'Cinzel',serif;font-size:1.1rem;font-weight:700;color:var(--parchment);margin-bottom:1rem;letter-spacing:.1em}
+    .veil-box p{color:var(--fog);font-size:.95rem;margin-bottom:.8rem}
+    .veil-box p:last-child{margin-bottom:0;color:var(--mist);font-style:italic}
+
+    .factions-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--slate);border:1px solid var(--slate);margin-bottom:3rem}
+    .faction-card{background:var(--charcoal);padding:2rem 1.6rem;position:relative;overflow:hidden;transition:background .3s}
+    .faction-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--faction-color,var(--blood));transform:scaleX(0);transform-origin:left;transition:transform .4s}
+    .faction-card:hover::after{transform:scaleX(1)}
+    .faction-card:hover{background:rgba(26,26,31,.95)}
+    .faction-glyph{font-size:1.6rem;margin-bottom:.8rem;display:block}
+    .faction-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--parchment);margin-bottom:.5rem}
+    .faction-tag{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--faction-color,var(--ember));margin-bottom:.8rem;display:block}
+    .faction-desc{font-size:.88rem;color:var(--mist);line-height:1.6}
+
+    /* CONCEPT */
+    .concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+    .concept-text p{margin-bottom:1.2rem;color:var(--fog)}
+    .concept-stats{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+    .stat-card{background:rgba(26,26,31,.8);border:1px solid var(--slate);border-top:2px solid var(--blood);padding:1.5rem;transition:border-top-color .3s,transform .3s}
+    .stat-card:hover{border-top-color:var(--gold);transform:translateY(-3px)}
+    .stat-num{font-family:'Cinzel',serif;font-size:2.2rem;font-weight:900;color:var(--ember);line-height:1;margin-bottom:.3rem}
+    .stat-label{font-family:'Share Tech Mono',monospace;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mist)}
+
+    /* FEATURES */
+    .full-bleed{max-width:100%;padding:6rem 0;background:rgba(13,13,15,.5)}
+    .full-bleed-inner{max-width:1100px;margin:0 auto;padding:0 2rem}
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5px;background:var(--slate);border:1px solid var(--slate)}
+    .feature-card{background:var(--charcoal);padding:2.2rem 1.8rem;transition:background .3s;position:relative;overflow:hidden}
+    .feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blood),transparent);transform:scaleX(0);transform-origin:left;transition:transform .4s}
+    .feature-card:hover::before{transform:scaleX(1)}
+    .feature-card:hover{background:rgba(26,26,31,.95)}
+    .feature-icon{font-size:1.8rem;margin-bottom:1rem;display:block;filter:grayscale(.3)}
+    .feature-name{font-family:'Cinzel',serif;font-size:1rem;font-weight:700;color:var(--parchment);margin-bottom:.8rem;letter-spacing:.05em}
+    .feature-desc{font-size:.9rem;color:var(--mist);line-height:1.6}
+
+    /* PROLOGUE */
+    .prologue-wrap{display:grid;grid-template-columns:1fr 1.4fr;gap:4rem;align-items:start}
+    .scene-item{display:flex;gap:1.2rem;padding:1.2rem 0;border-bottom:1px solid rgba(61,61,80,.35)}
+    .scene-item:last-child{border-bottom:none}
+    .scene-num{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.2em;color:var(--blood);flex-shrink:0;margin-top:4px}
+    .scene-title{font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;color:var(--fog);margin-bottom:.25rem}
+    .scene-desc{font-size:.87rem;color:var(--mist);line-height:1.5}
+    .prologue-excerpt{background:rgba(26,26,31,.7);border:1px solid var(--slate);border-top:2px solid var(--blood);padding:2.5rem;position:sticky;top:100px}
+    .excerpt-label{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;color:var(--blood);margin-bottom:1.5rem}
+    .excerpt-text{font-size:1rem;font-style:italic;color:var(--fog);line-height:1.9}
+    .excerpt-text p{margin-bottom:1rem}
+    .excerpt-text p:last-child{margin-bottom:0}
+    .excerpt-text strong{color:var(--parchment);font-style:normal}
+
+    /* LOOP */
+    .loop-steps{display:flex;gap:0;position:relative}
+    .loop-steps::before{content:'';position:absolute;top:28px;left:28px;right:28px;height:1px;background:linear-gradient(90deg,var(--blood),var(--gold),var(--blood));z-index:0}
+    .loop-step{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;z-index:1;padding:0 .5rem}
+    .step-num{width:56px;height:56px;background:var(--charcoal);border:2px solid var(--blood);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:1.1rem;font-weight:900;color:var(--ember);margin-bottom:1.2rem;transition:background .3s,border-color .3s}
+    .loop-step:hover .step-num{background:var(--blood);border-color:var(--gold);color:var(--parchment)}
+    .step-title{font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;color:var(--fog);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.08em}
+    .step-desc{font-size:.82rem;color:var(--mist)}
+
+    /* STATUS */
+    .status-wrap{display:grid;grid-template-columns:1fr 1fr;gap:3rem}
+    .progress-items{display:flex;flex-direction:column;gap:1.2rem}
+    .progress-header{display:flex;justify-content:space-between;margin-bottom:.5rem}
+    .progress-name{font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:.15em;text-transform:uppercase;color:var(--fog)}
+    .progress-pct{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--ember)}
+    .progress-bar{height:3px;background:var(--slate);position:relative;overflow:hidden}
+    .progress-fill{position:absolute;top:0;left:0;bottom:0;background:linear-gradient(90deg,var(--blood),var(--gold));animation:fillAnim 1.2s cubic-bezier(0.16,1,0.3,1) both}
+    @keyframes fillAnim{from{width:0!important}}
+    .roadmap-list{list-style:none}
+    .roadmap-item{display:flex;gap:1rem;align-items:flex-start;padding:1rem 0;border-bottom:1px solid rgba(61,61,80,.4)}
+    .road-dot{width:10px;height:10px;border-radius:50%;margin-top:6px;flex-shrink:0;border:2px solid var(--steel)}
+    .road-dot.active{background:transparent;border-color:var(--gold);box-shadow:0 0 8px var(--gold);animation:dotPulse 1.5s ease-in-out infinite}
+    @keyframes dotPulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .road-text{font-size:.95rem;color:var(--fog)}
+    .road-text strong{color:var(--parchment);font-style:italic}
+
+    /* TECH */
+    .tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+    .tech-card{background:rgba(26,26,31,.6);border:1px solid var(--slate);padding:1.5rem 1rem;text-align:center;transition:border-color .3s,transform .3s}
+    .tech-card:hover{border-color:var(--blood);transform:translateY(-4px)}
+    .tech-icon{font-size:2rem;margin-bottom:.7rem;display:block}
+    .tech-name{font-family:'Cinzel',serif;font-size:.85rem;color:var(--fog);margin-bottom:.3rem}
+    .tech-role{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--steel)}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--slate);padding:3rem 2rem;text-align:center}
+    .footer-title{font-family:'Cinzel',serif;font-size:1.4rem;color:var(--parchment);margin-bottom:.5rem}
+    .footer-sub{font-family:'Share Tech Mono',monospace;font-size:.7rem;letter-spacing:.2em;color:var(--steel);text-transform:uppercase;margin-bottom:2rem}
+    .footer-links{display:flex;gap:1.5rem;justify-content:center;flex-wrap:wrap}
+    .footer-link{font-family:'Share Tech Mono',monospace;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mist);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:2px;transition:color .25s,border-color .25s}
+    .footer-link:hover{color:var(--gold-lt);border-color:var(--gold)}
+    .footer-copy{margin-top:2.5rem;font-size:.8rem;color:var(--steel);font-style:italic}
+
+    @media(max-width:768px){
+      .concept-grid,.status-wrap,.lore-intro,.prologue-wrap{grid-template-columns:1fr}
+      .features-grid,.factions-grid{grid-template-columns:1fr}
+      .tech-grid{grid-template-columns:repeat(2,1fr)}
+      .loop-steps{flex-direction:column;gap:2rem}
+      .loop-steps::before{display:none}
+      .nav-links{display:none}
+      .concept-stats{grid-template-columns:1fr 1fr}
+      .prologue-excerpt{position:static}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Beyond the <span>Veil</span></div>
+  <ul class="nav-links">
+    <li><a href="#world">World</a></li>
+    <li><a href="#concept">Concept</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#prologue">Prologue</a></li>
+    <li><a href="#status">Status</a></li>
+  </ul>
+  <span class="dev-alert">⬡ In Development</span>
+</nav>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="veil-shimmer"></div>
+  <div class="city-silhouette"></div>
+  <div class="fog-strip"></div>
+  <div class="fog-strip"></div>
+  <div class="fog-strip"></div>
+  <div class="hero-content">
+    <div class="badge">Open World Prototype · Dark Fantasy ARPG</div>
+    <h1 class="hero-title">
+      Beyond
+      <span class="word-the">the</span>
+      <span class="word-veil">Veil</span>
+    </h1>
+    <p class="hero-subtitle">The City Hides More Than Its Shadows</p>
+    <div class="divider"></div>
+    <p class="hero-desc">An open-world ARPG where you investigate supernatural crimes in a city layered with secrets — one world visible, another hidden just beyond perception.</p>
+    <div class="hero-tags">
+      <span class="tag">Open World</span>
+      <span class="tag">Investigation</span>
+      <span class="tag">ARPG Combat</span>
+      <span class="tag">The Veil</span>
+      <span class="tag">Grimms</span>
+      <span class="tag">Early Prototype</span>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ &nbsp; Scroll to explore</div>
+</div>
+
+<!-- WORLD -->
+<section id="world">
+  <div class="section-label">// 01 — World & Lore</div>
+  <h2 class="section-title">Two Worlds.<br>One City.</h2>
+  <div class="section-line"></div>
+  <div class="lore-intro">
+    <div class="lore-intro-text">
+      <p>Beneath the surface of an ordinary modern city exists a hidden world — one shaped by an ancient dimension known as <strong style="color:var(--parchment)">The Veil</strong>. A primordial, infinite forest-like plane that bleeds supernatural energy into our world, influencing the evolution of creatures that now live among humans in disguise.</p>
+      <div class="quote-block">"The Veil is not heaven. Not hell. It is something far older — a wild, unstable ecosystem that the world was never meant to forget."</div>
+      <p>These beings — called <strong style="color:var(--parchment)">The Veiled</strong> — pass as humans every day. Three forms: a perfect disguise, a semi-revealed state visible only to a few, and a full revelation no one can ignore. Most humans never suspect a thing.</p>
+      <p>You are one of the rare few who can see through it all.</p>
+    </div>
+    <div class="veil-box">
+      <div class="veil-box-title">🌲 About The Veil</div>
+      <p>A superior dimension resembling an infinite primordial forest, constantly leaking ancient energy into the human world. It shaped the myths humanity created — the Garden of Eden, the Elysian Fields, sacred groves.</p>
+      <p>Veil Rifts — artificial tears between dimensions — can be opened through forbidden rituals, unleashing Veil Beasts, creating Familiars, or granting enormous power to those willing to pay the price.</p>
+      <p>Royals who use their full power leave a supernatural signature — a mark detectable across the Veil. A warning. Or an invitation.</p>
+      <p><em>The Veil does not belong to good or evil. It simply is.</em></p>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Cinzel',serif;color:var(--fog);font-size:1.1rem;margin-bottom:1.5rem;letter-spacing:.1em;text-transform:uppercase;">Factions of the Hidden World</h3>
+  <div class="factions-grid">
+    <div class="faction-card" style="--faction-color:#c0392b">
+      <span class="faction-glyph">⚫</span>
+      <div class="faction-name">The Grimms</div>
+      <span class="faction-tag">Hunter · Legend · Terror</span>
+      <p class="faction-desc">Almost myth to most Veiled. Their eyes turn completely black during a hunt — and in that darkness, creatures see their own predatory nature reflected back. Pure instinctive terror. Stronger, faster, built to hunt.</p>
+    </div>
+    <div class="faction-card" style="--faction-color:#b8860b">
+      <span class="faction-glyph">👑</span>
+      <div class="faction-name">The Royals</div>
+      <span class="faction-tag">Bloodline · Power · Manipulation</span>
+      <p class="faction-desc">Pureblooded Veiled nobility with a deeper connection to the Veil. Their power far exceeds common Veiled — but using it fully leaves a supernatural mark that makes them detectable across dimensions.</p>
+    </div>
+    <div class="faction-card" style="--faction-color:#6b6b8a">
+      <span class="faction-glyph">🕶️</span>
+      <div class="faction-name">Council of Silence</div>
+      <span class="faction-tag">Control · Secrecy · Government</span>
+      <p class="faction-desc">A shadow organization embedded inside governments worldwide. Their mission: keep the hidden world hidden at any cost. They erase evidence, control media, eliminate threats — and recruit investigators like you.</p>
+    </div>
+    <div class="faction-card" style="--faction-color:#8b1a1a">
+      <span class="faction-glyph">🐾</span>
+      <div class="faction-name">Restorer Veiled</div>
+      <span class="faction-tag">Supremacists · Ancient Order</span>
+      <p class="faction-desc">Veiled extremists who want to restore the ancient era when their kind openly hunted humans and wielded magic freely. A direct threat to the fragile peace the Council has maintained for centuries.</p>
+    </div>
+    <div class="faction-card" style="--faction-color:#d4a017">
+      <span class="faction-glyph">🧿</span>
+      <div class="faction-name">The Attuned</div>
+      <span class="faction-tag">Human · Veil-Sensitive · Dangerous</span>
+      <p class="faction-desc">Rare humans who learned to connect with the Veil. They can see semi-revealed Veiled and sense residual energy from rituals. Most bear visible marks from the dangerous attuning process. The strongest can open microfissures.</p>
+    </div>
+    <div class="faction-card" style="--faction-color:#c0392b">
+      <span class="faction-glyph">🗡️</span>
+      <div class="faction-name">Grimm Royals</div>
+      <span class="faction-tag">Hybrid · Elite · Unstoppable</span>
+      <p class="faction-desc">Created through generations of strategic marriages. They are the strongest beings in the hidden world — and unlike Royal Veiled, their power does not tear the Veil. They are its antibody.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- CONCEPT -->
+<section id="concept">
+  <div class="section-label">// 02 — About the Game</div>
+  <h2 class="section-title">You See What<br>Others Cannot.</h2>
+  <div class="section-line"></div>
+  <div class="concept-grid">
+    <div class="concept-text">
+      <p><strong style="color:var(--parchment)">Beyond the Veil</strong> is an early-stage open-world ARPG prototype. You play as an investigator navigating the collision of two worlds — the mundane city above, and the supernatural underworld hidden beneath perception.</p>
+      <p>The core loop blends <em>investigation gameplay</em> — gathering evidence, tracking suspects, building cases — with real-time ARPG combat against Veiled creatures. Every case is a puzzle. Every confrontation is a risk.</p>
+      <p>This repository is the <em>very beginning</em> of that vision: city systems, player movement, and the architectural foundation for everything to come.</p>
+    </div>
+    <div class="concept-stats">
+      <div class="stat-card"><div class="stat-num">01</div><div class="stat-label">Playable District<br>Planned for v0.1</div></div>
+      <div class="stat-card"><div class="stat-num">3D</div><div class="stat-label">Open World<br>City Layout</div></div>
+      <div class="stat-card"><div class="stat-num">6</div><div class="stat-label">Factions in<br>the Hidden World</div></div>
+      <div class="stat-card"><div class="stat-num">α</div><div class="stat-label">Current Stage:<br>Early Alpha</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<div class="full-bleed" id="features">
+  <div class="full-bleed-inner">
+    <div class="section-label">// 03 — Systems</div>
+    <h2 class="section-title">Core Features</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="full-bleed-inner">
+    <div class="features-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🗺️</span>
+        <div class="feature-name">Open World City</div>
+        <p class="feature-desc">District-based urban map with free exploration — streets, alleys, rooftops, and locations where the Veil bleeds through. Designed to expand district by district as development progresses.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🔍</span>
+        <div class="feature-name">Investigation System</div>
+        <p class="feature-desc">Examine crime scenes, collect evidence, and identify faction involvement. Build connections between clues in a dynamic case journal — the city speaks to those who know how to listen.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">⚔️</span>
+        <div class="feature-name">ARPG Combat</div>
+        <p class="feature-desc">Real-time combat with Veiled enemies in their revealed forms. Weapons, armor, accessories — you may have to fight a Royal one day. The hidden world does not reward the unprepared.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📔</span>
+        <div class="feature-name">Case Journal</div>
+        <p class="feature-desc">Dynamic objective tracking, suspect boards, and evidence logs. Every case connects to the larger hidden war — some leads point much further than expected.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🧠</span>
+        <div class="feature-name">NPC & Dialogue</div>
+        <p class="feature-desc">Humans, Veiled, Attuned, and Council agents each hold pieces of the truth. Not every answer comes willingly — and some sources have their own agenda.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📈</span>
+        <div class="feature-name">Progression & Loot</div>
+        <p class="feature-desc">Upgrades through solved cases and combat. Equipment with rarity tiers, including rare Veil-infused items. Build your investigator before the factions notice you exist.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROLOGUE -->
+<section id="prologue">
+  <div class="section-label">// 04 — Story</div>
+  <h2 class="section-title">Prologue:<br>"The Skalengek Case"</h2>
+  <div class="section-line"></div>
+  <div class="prologue-wrap">
+    <div>
+      <div class="scene-item">
+        <div class="scene-num">01</div>
+        <div><div class="scene-title">The Hunt</div><p class="scene-desc">Night. A rain-soaked city. A Veiled investigator working for the Council of Silence tracks a Skalengek criminal — one killing in plain sight and using transformation to make witnesses look insane.</p></div>
+      </div>
+      <div class="scene-item">
+        <div class="scene-num">02</div>
+        <div><div class="scene-title">The Crime Scene</div><p class="scene-desc">Claw marks. Distorted cameras. Terrified witnesses saying they saw a monster. She follows the pattern, predicts the next strike — and gets there before the Council finishes erasing the evidence.</p></div>
+      </div>
+      <div class="scene-item">
+        <div class="scene-num">03</div>
+        <div><div class="scene-title">The Chase</div><p class="scene-desc">She intercepts the Skalengek. He runs, laughing. The pursuit tears through narrow streets, fire escapes, and abandoned lots — until it ends somewhere no witnesses can follow.</p></div>
+      </div>
+      <div class="scene-item">
+        <div class="scene-num">04</div>
+        <div><div class="scene-title">The Fight & The Fall</div><p class="scene-desc">He fights dirty. Psychological pressure, traps, a cowardly blow. She falls. He approaches slowly — confident he has won. The camera holds on his slow footsteps.</p></div>
+      </div>
+      <div class="scene-item">
+        <div class="scene-num">05</div>
+        <div><div class="scene-title">Footsteps in the Silence</div><p class="scene-desc">A sound. Distant. Growing closer. The Skalengek stops. The air changes. She cannot stand — but something is coming. Something that makes even a killer go still.</p></div>
+      </div>
+      <div class="scene-item">
+        <div class="scene-num">06–09</div>
+        <div><div class="scene-title">The Grimm — & What Comes Next</div><p class="scene-desc">A man appears. Calm. Kanabō over one shoulder. He is the legend Veiled parents use to scare children. Now he is real — and she has seen him. That changes everything.</p></div>
+      </div>
+    </div>
+
+    <div class="prologue-excerpt">
+      <div class="excerpt-label">// Scene 06 — Fragment</div>
+      <div class="excerpt-text">
+        <p>A man appeared at the far end of the lot.</p>
+        <p>The first impression was simple: an ordinary human. Calm. Unhurried. One hand in his pocket — the other carrying a <strong>kanabō</strong> over his shoulder like a baseball bat he forgot to put down.</p>
+        <p>He walked like someone with nowhere to be.</p>
+        <p>The Skalengek snarled. Then transformed — ready to terrify, ready to end this.</p>
+        <p>And then he saw.</p>
+        <p><strong>Eyes completely black.</strong> Dark lines tracing the edges. And in that darkness — a reflection. Not of the man standing there. Of himself. Every predatory impulse. Every worst thing he was.</p>
+        <p>Fear arrived before thought did.</p>
+        <p>She forced her own transformation through the pain — just to understand what was happening. And she saw what she had been told did not exist.</p>
+        <p><em>A Grimm.</em></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- LOOP -->
+<section id="loop">
+  <div class="section-label">// 05 — Gameplay Loop</div>
+  <h2 class="section-title">How a Case Unfolds</h2>
+  <div class="section-line"></div>
+  <div class="loop-steps">
+    <div class="loop-step"><div class="step-num">01</div><div class="step-title">Receive Report</div><p class="step-desc">A call, a Council assignment, or something you stumble across. Something happened that humans cannot explain.</p></div>
+    <div class="loop-step"><div class="step-num">02</div><div class="step-title">Investigate</div><p class="step-desc">Reach the scene. Collect evidence. See what the Veil left behind that others miss.</p></div>
+    <div class="loop-step"><div class="step-num">03</div><div class="step-title">Follow Leads</div><p class="step-desc">Track suspects across the city. Talk. Observe. Identify the faction behind the case.</p></div>
+    <div class="loop-step"><div class="step-num">04</div><div class="step-title">Confront</div><p class="step-desc">When words fail, the fight begins. Some things reveal themselves — and some don't stop.</p></div>
+    <div class="loop-step"><div class="step-num">05</div><div class="step-title">Collect & Prepare</div><p class="step-desc">Rewards, loot, reputation. The city grows more dangerous the more you learn about it.</p></div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- STATUS -->
+<section id="status">
+  <div class="section-label">// 06 — Development</div>
+  <h2 class="section-title">Current Status</h2>
+  <div class="section-line"></div>
+  <div class="status-wrap">
+    <div>
+      <h3 style="font-family:'Cinzel',serif;color:var(--fog);font-size:1rem;margin-bottom:1.5rem;letter-spacing:.1em;text-transform:uppercase;">Active Progress</h3>
+      <div class="progress-items">
+        <div><div class="progress-header"><span class="progress-name">City Exploration Foundation</span><span class="progress-pct">35%</span></div><div class="progress-bar"><div class="progress-fill" style="width:35%"></div></div></div>
+        <div><div class="progress-header"><span class="progress-name">Player Controller & Camera</span><span class="progress-pct">50%</span></div><div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div></div>
+        <div><div class="progress-header"><span class="progress-name">Early Combat Testing</span><span class="progress-pct">20%</span></div><div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div></div>
+        <div><div class="progress-header"><span class="progress-name">Asset Pipeline (Blender → Engine)</span><span class="progress-pct">40%</span></div><div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div></div>
+        <div><div class="progress-header"><span class="progress-name">Prototype Enemy AI</span><span class="progress-pct">15%</span></div><div class="progress-bar"><div class="progress-fill" style="width:15%"></div></div></div>
+      </div>
+    </div>
+    <div>
+      <h3 style="font-family:'Cinzel',serif;color:var(--fog);font-size:1rem;margin-bottom:1.5rem;letter-spacing:.1em;text-transform:uppercase;">Roadmap</h3>
+      <ul class="roadmap-list">
+        <li class="roadmap-item"><div class="road-dot active"></div><div class="road-text"><strong>Phase 0 — Foundation:</strong> City district, player controller, basic movement and camera.</div></li>
+        <li class="roadmap-item"><div class="road-dot"></div><div class="road-text"><strong>Phase 1 — Investigation Core:</strong> Case journal, evidence system, Veil clue detection.</div></li>
+        <li class="roadmap-item"><div class="road-dot"></div><div class="road-text"><strong>Phase 2 — NPC Layer:</strong> Dialogue system, faction-aware NPCs, witnesses and informants.</div></li>
+        <li class="roadmap-item"><div class="road-dot"></div><div class="road-text"><strong>Phase 3 — Combat System:</strong> Full ARPG combat, Veiled enemy AI, equipment and loot.</div></li>
+        <li class="roadmap-item"><div class="road-dot"></div><div class="road-text"><strong>Phase 4 — First Mission:</strong> The Skalengek Case — a complete investigation from report to resolution.</div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="sep">
+
+<!-- TECH -->
+<section id="tech">
+  <div class="section-label">// 07 — Technology</div>
+  <h2 class="section-title">Tools & Stack</h2>
+  <div class="section-line"></div>
+  <div class="tech-grid">
+    <div class="tech-card"><span class="tech-icon">🎮</span><div class="tech-name">Game Engine</div><div class="tech-role">Unity / Godot / Unreal</div></div>
+    <div class="tech-card"><span class="tech-icon">💻</span><div class="tech-name">Language</div><div class="tech-role">C# / GDScript / C++</div></div>
+    <div class="tech-card"><span class="tech-icon">🧊</span><div class="tech-name">Blender</div><div class="tech-role">3D Modeling & Assets</div></div>
+    <div class="tech-card"><span class="tech-icon">🐙</span><div class="tech-name">Git / GitHub</div><div class="tech-role">Version Control</div></div>
+  </div>
+  <p style="margin-top:2rem;font-size:.9rem;color:var(--steel);font-style:italic;font-family:'Share Tech Mono',monospace;letter-spacing:.05em;">* Engine selection in progress — stack finalized in early Phase 0.</p>
+</section>
+
+<footer>
+  <div class="footer-title">Beyond the Veil</div>
+  <div class="footer-sub">Personal Portfolio Project · Early Prototype</div>
+  <div class="footer-links">
+    <a class="footer-link" href="#">GitHub Repository</a>
+    <a class="footer-link" href="#">Developer Portfolio</a>
+    <a class="footer-link" href="#">Follow Updates</a>
+  </div>
+  <p class="footer-copy">Personal project created for learning and portfolio purposes.<br>Original world, lore, and characters — created by the developer.</p>
+</footer>
+
+</body>
+</html>
