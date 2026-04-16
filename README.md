@@ -83,11 +83,4 @@ Create first full investigation mission
 This is a personal project created for learning and portfolio purposes.
 It is not affiliated with or endorsed by the official creators of the Grimm TV series.
 
-### 🎨 AI-Generated Concept Art Notice
-
-Some images used in this repository (such as banners or concept visuals) were generated using AI and are for concept/reference purposes only.
-
-They are not final game assets and are only being used to help visualize the atmosphere and direction of the project during early development.
-
-All gameplay systems, implementation, and project development are being created independently as part of this portfolio project.
-<img width="2752" height="1536" alt="perfeito_agora_para_202604151503" src="https://github.com/user-attachments/assets/b699aa6a-719c-4d6f-a780-4cf325cf8cee" />
+4cf325cf8cee" />
