@@ -1,4 +1,4 @@
-# Grimm Investigation City (Open World Prototype)
+# Beyond the Veil (Open World Prototype)
 
 An early-stage open-world investigation game prototype inspired by supernatural crime and mystery themes (influenced by the TV series Grimm).
 
